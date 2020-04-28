@@ -35,7 +35,7 @@ OR
 curl localhost:8080/users
 ```
 
-### Swagger API docs
+### API documentation
 
     http://localhost:8080/docs
 
