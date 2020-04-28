@@ -1,4 +1,4 @@
-// Package handlers classification of User API
+// Package handlers Classification of User API
 //
 // Documentation for User API
 //

@@ -1,0 +1,176 @@
+basePath: /
+consumes:
+- application/json
+definitions:
+  GenericError:
+    description: GenericError is a generic error message returned by a server
+    properties:
+      message:
+        type: string
+        x-go-name: Message
+    type: object
+    x-go-package: github.com/zahidurr/Restful-API-Golang/handlers
+  User:
+    description: User defines the structure for an API user
+    properties:
+      address:
+        description: the address of this user
+        type: string
+        x-go-name: Address
+      dob:
+        description: the date of birth of this user
+        type: string
+        x-go-name: DOB
+      first_name:
+        description: the First name of this user
+        maxLength: 15
+        type: string
+        x-go-name: Firstname
+      id:
+        description: the id for the user
+        format: int64
+        minimum: 1
+        type: integer
+        x-go-name: ID
+      last_name:
+        description: the Last name of this user
+        maxLength: 15
+        type: string
+        x-go-name: Lastname
+    required:
+    - first_name
+    - last_name
+    - dob
+    type: object
+    x-go-package: github.com/zahidurr/Restful-API-Golang/data
+  ValidationError:
+    description: ValidationError is a collection of validation error messages
+    properties:
+      messages:
+        items:
+          type: string
+        type: array
+        x-go-name: Messages
+    type: object
+    x-go-package: github.com/zahidurr/Restful-API-Golang/handlers
+info:
+  description: Documentation for User API
+  title: Classification of User API
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      description: Return a list of users from the database
+      operationId: listUsers
+      responses:
+        "200":
+          $ref: '#/responses/usersResponse'
+      tags:
+      - users
+    post:
+      description: Create a new user
+      operationId: createUser
+      parameters:
+      - description: |-
+          User data structure to Update or Create.
+          Note: the id field is ignored by update and create operations
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/User'
+      responses:
+        "200":
+          $ref: '#/responses/userResponse'
+        "422":
+          $ref: '#/responses/errorValidation'
+        "501":
+          $ref: '#/responses/errorResponse'
+      tags:
+      - users
+    put:
+      description: Update a users details
+      operationId: updateUser
+      parameters:
+      - description: |-
+          User data structure to Update or Create.
+          Note: the id field is ignored by update and create operations
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/User'
+      responses:
+        "201":
+          $ref: '#/responses/noContentResponse'
+        "404":
+          $ref: '#/responses/errorResponse'
+        "422":
+          $ref: '#/responses/errorValidation'
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: Update a users details
+      operationId: deleteUser
+      parameters:
+      - description: The id of the user for which the operation relates
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "201":
+          $ref: '#/responses/noContentResponse'
+        "404":
+          $ref: '#/responses/errorResponse'
+        "501":
+          $ref: '#/responses/errorResponse'
+      tags:
+      - users
+    get:
+      description: Return a list of users from the database
+      operationId: listSingleUser
+      parameters:
+      - description: The id of the user for which the operation relates
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
+      responses:
+        "200":
+          $ref: '#/responses/userResponse'
+        "404":
+          $ref: '#/responses/errorResponse'
+      tags:
+      - users
+produces:
+- application/json
+responses:
+  errorResponse:
+    description: Generic error message returned as a string
+    schema:
+      $ref: '#/definitions/GenericError'
+  errorValidation:
+    description: Validation errors defined as an array of strings
+    schema:
+      $ref: '#/definitions/ValidationError'
+  noContentResponse:
+    description: No content is returned by this API endpoint
+  userResponse:
+    description: Data structure representing a single user
+    schema:
+      $ref: '#/definitions/User'
+  usersResponse:
+    description: A list of users
+    schema:
+      items:
+        $ref: '#/definitions/User'
+      type: array
+schemes:
+- http
+swagger: "2.0"

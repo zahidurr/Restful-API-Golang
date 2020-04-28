@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -19,28 +18,30 @@ import (
 // Main function
 func main() {
 	// Init log
-	l := log.New(os.Stdout, "restfulapi_go", log.LstdFlags)
+	l := log.New(os.Stdout, "restfulapi", log.LstdFlags)
+
+	v := data.NewValidation()
 
 	// create the handlers
 	uh := handlers.NewUsers(l, v)
 
 	// create a new serve mux and register the handlers
-	sm := mux.NewRouter()
+	r := mux.NewRouter()
 
 	// handlers for API
-	getR := sm.Methods(http.MethodGet).Subrouter()
+	getR := r.Methods(http.MethodGet).Subrouter()
 	getR.HandleFunc("/users", uh.ListAll)
 	getR.HandleFunc("/users/{id:[0-9]+}", uh.ListSingle)
 
-	putR := sm.Methods(http.MethodPut).Subrouter()
+	putR := r.Methods(http.MethodPut).Subrouter()
 	putR.HandleFunc("/users", uh.Update)
 	putR.Use(uh.MiddlewareValidateUser)
 
-	postR := sm.Methods(http.MethodPost).Subrouter()
+	postR := r.Methods(http.MethodPost).Subrouter()
 	postR.HandleFunc("/users", uh.Create)
 	postR.Use(uh.MiddlewareValidateUser)
 
-	deleteR := sm.Methods(http.MethodDelete).Subrouter()
+	deleteR := r.Methods(http.MethodDelete).Subrouter()
 	deleteR.HandleFunc("/users/{id:[0-9]+}", uh.Delete)
 
 	// handler for documentation
@@ -88,6 +89,7 @@ func main() {
 	log.Println("Got signal:", sig)
 
 	// gracefully shutdown the server, waiting max 30 seconds for current operations to complete
-	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 	s.Shutdown(ctx)
 }
